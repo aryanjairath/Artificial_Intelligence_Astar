@@ -23,22 +23,26 @@ def get_unvisited_neighbors(row, col, visited):
             neighbors.append((r,c))
     return neighbors
 
-def genMaze(numberOfMazes, rows, cols, allMazes):
+def genMaze(numberOfMazes, rows, cols):
     cmap = colors.ListedColormap(['Red','Green'])
+    allMazes = []
+    allManhattan = []
     for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
-        starting_row = random.randint(0,rows-1) 
-        starting_col = random.randint(0,cols-1)
+        starting_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
+        dest_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
+        print(starting_coord)
+        print(dest_coord)
         visited = set()
         stack = []
-        stack.append((starting_row, starting_col))
-        visited.add((starting_row, starting_col))
-        maze[starting_row,starting_col] = 1
+        stack.append(starting_coord)
+        visited.add(starting_coord)
+        maze[starting_coord[0],starting_coord[1]] = 1
 
         while len(visited) < rows*cols:
             if stack:
                 curr_row, curr_col = stack[-1]
-            else:
+            else: #Dead end check
                 unvisited_cells = [(r,c) for r in range(rows) for c in range(cols) if (r,c) not in visited]
                 curr_row, curr_col = random.choice(unvisited_cells)
                 stack.append((curr_row,curr_col))
@@ -56,20 +60,29 @@ def genMaze(numberOfMazes, rows, cols, allMazes):
                     maze[next_row, next_col] = 0
             else: #No neighbors!
                 stack.pop()
+        maze[dest_coord] = 1
         allMazes.append(maze)
-        print(maze)
+        allManhattan.append(genManhattan(rows, cols, dest_coord))
         cmap = colors.ListedColormap(['Red','Green'])
         plt.imshow(maze, cmap=cmap)
         plt.show()
-    return allMazes
+    return allMazes, allManhattan
+
+def genManhattan(rows, cols, dest):
+    manhattan = np.zeros((rows, cols))
+    for x in range(0, rows):
+        for y in range(0, cols):
+            manhattan[x,y] = manhattanDistance((x,y),dest)
+    return manhattan  
 
 rows = 101
 cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
-
 rows = 5
 cols = 5
-numMazes = 7
-mazes2 = genMaze(numMazes, rows, cols, [])
+numMazes = 1
+mazes2 = genMaze(numMazes, rows, cols)
+print(mazes2[0])
+print(mazes2[1])
