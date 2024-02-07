@@ -25,7 +25,7 @@ def get_unvisited_neighbors(row, col, visited):
 
 def genMaze(numberOfMazes, rows, cols, allMazes):
     cmap = colors.ListedColormap(['Red','Green'])
-    for _ in numberOfMazes:
+    for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
         starting_row = random.randint(0,rows-1) 
         starting_col = random.randint(0,cols-1)
@@ -45,7 +45,7 @@ def genMaze(numberOfMazes, rows, cols, allMazes):
                 visited.add((curr_row,curr_col))
                 maze[curr_row,curr_col] = 1
                 
-            neighbors = get_unvisited_neighbors(maze, curr_row, curr_col, visited)
+            neighbors = get_unvisited_neighbors(curr_row, curr_col, visited)
             if neighbors:
                 next_row, next_col = random.choice(neighbors)
                 visited.add((next_row, next_col))
