@@ -68,6 +68,7 @@ cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
+
 rows = 5
 cols = 5
 numMazes = 7
