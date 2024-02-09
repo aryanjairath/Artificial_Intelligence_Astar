@@ -100,7 +100,7 @@ def A_star(grid, start, end):
             if(new_i < 0 or new_i >= len(grid) or new_j < 0 or new_j >= len(grid) or [new_i, new_j] in visited or grid[new_i][new_j] == 0):
                 continue
             #calculate the distance from the parent to the current child plus the h(n) -> f(n) = cost + manhattan distance from the current cell
-            f_distance = (current_distance + grid[new_i][new_j]) + (end_i - new_i + end_j - new_j)
+            f_distance = (current_distance + 1) + (end_i - new_i + end_j - new_j)
             #if the distance is the shortest for this path then update the shortest distance
             if f_distance < shortest_path[[new_i, new_j]]:
                 shortest_path[[new_i, new_j]] = f_distance
