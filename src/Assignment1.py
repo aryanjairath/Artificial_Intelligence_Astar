@@ -1,6 +1,9 @@
 import random
+import PriorityQueue
 import numpy as np
 import matplotlib 
+import heapq
+import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
@@ -74,6 +77,43 @@ def genManhattan(rows, cols, dest):
         for y in range(0, cols):
             manhattan[x,y] = manhattanDistance((x,y),dest)
     return manhattan  
+
+def A_star(grid, start, end):
+    #visited set of indexes visited
+    visited = set()
+    shortest_path = {v: float("inf") for v in grid.adjacency_list.keys()}
+    direction = [[-1,0], [1,0],[0,-1],[0,1]]
+    prev = {v: None for v in grid.adjacency_list.keys()}
+    i,j = start[0], start[1]
+    end_i, end_j = end[0], end[1]
+    shortest_path[start] = 0
+    queue = PriorityQueue()
+    queue.add_task(0 + end_i - i + end_j - j, start)
+    while queue:
+        current_distance, current_position = queue.pop_task()
+        visited.add(current_position)
+        for d in direction:
+            r,c = d[0], d[1]
+            new_i = i + r
+            new_j = j + c
+            if(new_i < 0 or new_i >= len(grid) or new_j < 0 or new_j >= len(grid) or [new_i, new_j] in visited or grid[new_i][new_j] == 0):
+                continue
+            #calculate the distance from the parent to the current child plus the h(n) -> f(n) = cost + manhattan distance from the current cell
+            f_distance = (current_distance + grid[new_i][new_j]) + (end_i - new_i + end_j - new_j)
+            #if the distance is the shortest for this path then update the shortest distance
+            if f_distance < shortest_path[[new_i, new_j]]:
+                shortest_path[[new_i, new_j]] = f_distance
+                prev[[new_i, new_j]] = current_position
+                queue.add_task(f_distance, [new_i, new_j])
+
+
+
+
+
+        
+
+
+
 
 rows = 101
 cols = 101
