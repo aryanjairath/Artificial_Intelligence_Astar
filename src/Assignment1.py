@@ -1,4 +1,5 @@
 import random
+import queue
 import PriorityQueue
 import numpy as np
 import matplotlib 
@@ -105,6 +106,18 @@ def A_star(grid, start, end):
                 shortest_path[[new_i, new_j]] = f_distance
                 prev[[new_i, new_j]] = current_position
                 queue.add_task(f_distance, [new_i, new_j])
+    
+
+    #Build the path
+    path = queue.LifoQueue()
+    path.put(end)
+    curr = end
+    while curr != None:
+        path.put(prev[curr])
+        curr = prev[curr]
+    return path
+
+
 
 
 
