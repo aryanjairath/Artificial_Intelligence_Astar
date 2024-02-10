@@ -1,6 +1,10 @@
 import random
+import queue
+import PriorityQueue
 import numpy as np
 import matplotlib 
+import heapq
+import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
@@ -15,16 +19,20 @@ def manhattanDistance(curr, goal):
     return abs(goal[1]-curr[1])+abs(goal[0]-curr[0])
 
 def get_unvisited_neighbors(row, col, visited):
-    directions = [[1,0],[0,1],[-1,0],[0,-1]]
+    direction = [[1,0],[0,1],[-1,0],[0,-1]]
     neighbors = []
-    for dr, dc in directions:
+    for dr, dc in direction:
         r, c = row+dr,col+dc
         if validRow(r) and validCol(c) and (r,c) not in visited:
             neighbors.append((r,c))
     return neighbors
 
+def showMaze(cmap, maze):
+    plt.figure(figsize=(6.7,6.7))
+    plt.imshow(maze, cmap=cmap)
+    plt.show()
+
 def genMaze(numberOfMazes, rows, cols):
-    cmap = colors.ListedColormap(['Red','Green'])
     allMazes = []
     allManhattan = []
     for _ in range(numberOfMazes):
@@ -61,28 +69,103 @@ def genMaze(numberOfMazes, rows, cols):
             else: #No neighbors!
                 stack.pop()
         maze[dest_coord] = 1
-        allMazes.append(maze)
-        allManhattan.append(genManhattan(rows, cols, dest_coord))
         cmap = colors.ListedColormap(['Red','Green'])
-        plt.imshow(maze, cmap=cmap)
-        plt.show()
+        showMaze(cmap,maze)
+        allMazes.append(maze)
+        print(Backward_A_star(maze, starting_coord, dest_coord, rows,cols))
     return allMazes, allManhattan
 
-def genManhattan(rows, cols, dest):
-    manhattan = np.zeros((rows, cols))
-    for x in range(0, rows):
-        for y in range(0, cols):
-            manhattan[x,y] = manhattanDistance((x,y),dest)
-    return manhattan  
+def A_star(grid, start, end, rows, cols):
+    #visited set of indexes visited
+    visited = set()
+    shortest_path = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    direction = [[-1,0], [1,0],[0,-1],[0,1]]
+    prev = {(i, j): None for i in range(rows) for j in range(cols)}
+    i,j = start[0], start[1]
+    shortest_path[start] = 0
+    pq = []  # Initialize the priority queue (heap)
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)),start))
 
+    while pq:
+        current_distance, current_position = heapq.heappop(pq)
+        i, j = current_position  # Update i, j to be the current position
+
+        if current_position == end:
+            return reconstruct_path(grid, prev, end)  # Make sure to return the path
+
+        visited.add(current_position)
+        for d in direction:
+            r, c = d[0], d[1]
+            new_i, new_j = i + r, j + c  # Correctly calculate new_i and new_j
+
+            if not (validRow(new_i) and validCol(new_j)) or (new_i, new_j) in visited or grid[new_i][new_j] == 0:
+                continue  # Check grid boundaries and visited or blocked cells
+
+            # Calculate the f_score for the neighbor
+            f_distance = shortest_path[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
+
+            if f_distance < shortest_path[(new_i, new_j)]:
+                prev[(new_i, new_j)] = current_position  # Update the prev pointer
+                shortest_path[(new_i, new_j)] = f_distance
+                heapq.heappush(pq, (f_distance, (new_i, new_j)))
+    return []  # If the goal is not reached, return an empty path
+    
+def Backward_A_star(grid, start, end, rows, cols):
+    #visited set of indexes visited
+    visited = set()
+    shortest_path = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    direction = [[-1,0], [1,0],[0,-1],[0,1]]
+    prev = {(i, j): None for i in range(rows) for j in range(cols)}
+    i,j = end[0], end[1]
+    start_i, start_j = start[0], start[1]
+    shortest_path[end] = 0
+    pq = []  # Initialize the priority queue (heap)
+    heapq.heappush(pq, ((0 + manhattanDistance((i, start_i), (j, start_j))), end))
+
+    while pq:
+        current_distance, current_position = heapq.heappop(pq)
+        i, j = current_position  # Update i, j to be the current position
+
+        if current_position == start:
+            return reconstruct_path(grid, prev, start)  # Make sure to return the path
+
+        visited.add(current_position)
+        for d in direction:
+            r, c = d[0], d[1]
+            new_i, new_j = i + r, j + c  # Correctly calculate new_i and new_j
+
+            if not (validRow(new_i) and validCol(new_j)) or (new_i, new_j) in visited or grid[new_i][new_j] == 0:
+                continue  # Check grid boundaries and visited or blocked cells
+
+            # Calculate the f_score for the neighbor
+            f_distance = shortest_path[(i, j)] + 1 + manhattanDistance((new_i, new_j), start)
+
+            if f_distance < shortest_path[(new_i, new_j)]:
+                prev[(new_i, new_j)] = (i, j)  # Update the prev pointer
+                shortest_path[(new_i, new_j)] = f_distance
+                heapq.heappush(pq, (f_distance, (new_i, new_j)))  # Push new position with updated f_score
+
+    return []  # If the goal is not reached, return an empty path
+
+def reconstruct_path(grid, prev, current):
+    path = []
+    cmap = colors.ListedColormap(['Red','Green','Blue'])
+    while current in prev:
+        if current:
+            grid[current[0], current[1]] = 2
+        path.append(current)
+        current = prev[current]
+    showMaze(cmap, grid)
+    path = path[::-1]
+    return path
+
+        
 rows = 101
 cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
-rows = 5
-cols = 5
+rows = 6
+cols = 6
 numMazes = 1
 mazes2 = genMaze(numMazes, rows, cols)
-print(mazes2[0])
-print(mazes2[1])
