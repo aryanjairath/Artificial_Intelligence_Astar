@@ -72,11 +72,18 @@ def genMaze(numberOfMazes, rows, cols):
         cmap = colors.ListedColormap(['Red','Green'])
         showMaze(cmap,maze)
         allMazes.append(maze)
-        print(Backward_A_star(maze, starting_coord, dest_coord, rows,cols))
+        maze3 = maze.copy()
+        A_star(maze, starting_coord, dest_coord, rows,cols)
+        Backward_A_star(maze3, starting_coord, dest_coord, rows,cols)
+        print(maze)
+        print(maze3)
+        np.savetxt('file.txt', maze, delimiter=',')
+        np.savetxt('file2.txt', maze3, delimiter=',')
+
     return allMazes, allManhattan
 
 def A_star(grid, start, end, rows, cols):
-    
+    expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
@@ -89,10 +96,17 @@ def A_star(grid, start, end, rows, cols):
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
 
     while pq:
+        file_path = 'file.txt'
+# Open the file for writing ('w' mode) and write lines
+        with open(file_path, 'w') as file:
+            file.write(str(pq))
+
         _, current_position = heapq.heappop(pq)
+        expanded+=1
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == end:
+            print(expanded)
             return reconstruct_path(grid, prev, end)  # Make sure to return the path
 
         visited.add(current_position)
@@ -113,7 +127,7 @@ def A_star(grid, start, end, rows, cols):
     return []  # If the goal is not reached, return an empty path
     
 def Backward_A_star(grid, start, end, rows, cols):
-   
+    expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
@@ -127,9 +141,11 @@ def Backward_A_star(grid, start, end, rows, cols):
 
     while pq:
         _, current_position = heapq.heappop(pq)
+        expanded+=1
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == start:
+            print(expanded)
             return reconstruct_path(grid, prev, start)  # Make sure to return the path
 
         visited.add(current_position)
@@ -146,13 +162,17 @@ def Backward_A_star(grid, start, end, rows, cols):
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
-                heapq.heappush(pq, (f_distance, (new_i, new_j)))
+                heapq.heappush(pq, (f_distance, (new_i, new_j)))            
     return []  # If the goal is not reached, return an empty path
 
 #Here we prefer larger g_values if the f values are the same
 def A_star_tie(grid, start, end, rows, cols):
     #visited set of indexes visited
-    
+    file_path = 'file.txt'
+# Open the file for writing ('w' mode) and write lines
+    with open(file_path, 'w') as file:
+        file.write(str(pq))
+    expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
@@ -165,10 +185,12 @@ def A_star_tie(grid, start, end, rows, cols):
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), -1 * g_score[start], start))
 
     while pq:
+        print(pq)
         _, _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
-
+        expanded += 1
         if current_position == end:
+            print(expanded)
             return reconstruct_path(grid, prev, end)  # Make sure to return the path
 
         visited.add(current_position)
@@ -206,8 +228,8 @@ cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
-rows = 5
-cols = 5
+rows = 101
+cols = 101
 numMazes = 1
 mazes2 = genMaze(numMazes, rows, cols)
 
