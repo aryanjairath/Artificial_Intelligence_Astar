@@ -76,18 +76,20 @@ def genMaze(numberOfMazes, rows, cols):
     return allMazes, allManhattan
 
 def A_star(grid, start, end, rows, cols):
-    #visited set of indexes visited
+    
     visited = set()
-    shortest_path = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
     prev = {(i, j): None for i in range(rows) for j in range(cols)}
     i,j = start[0], start[1]
-    shortest_path[start] = 0
+    f_score[start] = 0
+    g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance(start, end)),start))
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
 
     while pq:
-        current_distance, current_position = heapq.heappop(pq)
+        _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == end:
@@ -102,28 +104,29 @@ def A_star(grid, start, end, rows, cols):
                 continue  # Check grid boundaries and visited or blocked cells
 
             # Calculate the f_score for the neighbor
-            f_distance = shortest_path[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
-
-            if f_distance < shortest_path[(new_i, new_j)]:
+            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
+            if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
-                shortest_path[(new_i, new_j)] = f_distance
+                f_score[(new_i, new_j)] = f_distance
+                g_score[(new_i, new_j)] = g_score[current_position] + 1
                 heapq.heappush(pq, (f_distance, (new_i, new_j)))
     return []  # If the goal is not reached, return an empty path
     
 def Backward_A_star(grid, start, end, rows, cols):
-    #visited set of indexes visited
+   
     visited = set()
-    shortest_path = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
     prev = {(i, j): None for i in range(rows) for j in range(cols)}
     i,j = end[0], end[1]
-    start_i, start_j = start[0], start[1]
-    shortest_path[end] = 0
+    f_score[end] = 0
+    g_score[end] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance((i, start_i), (j, start_j))), end))
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), end))
 
     while pq:
-        current_distance, current_position = heapq.heappop(pq)
+        _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == start:
@@ -138,13 +141,51 @@ def Backward_A_star(grid, start, end, rows, cols):
                 continue  # Check grid boundaries and visited or blocked cells
 
             # Calculate the f_score for the neighbor
-            f_distance = shortest_path[(i, j)] + 1 + manhattanDistance((new_i, new_j), start)
+            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), start)
+            if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
+                prev[(new_i, new_j)] = current_position  # Update the prev pointer
+                f_score[(new_i, new_j)] = f_distance
+                g_score[(new_i, new_j)] = g_score[current_position] + 1
+                heapq.heappush(pq, (f_distance, (new_i, new_j)))
+    return []  # If the goal is not reached, return an empty path
 
-            if f_distance < shortest_path[(new_i, new_j)]:
-                prev[(new_i, new_j)] = (i, j)  # Update the prev pointer
-                shortest_path[(new_i, new_j)] = f_distance
-                heapq.heappush(pq, (f_distance, (new_i, new_j)))  # Push new position with updated f_score
+#Here we prefer larger g_values if the f values are the same
+def A_star_tie(grid, start, end, rows, cols):
+    #visited set of indexes visited
+    
+    visited = set()
+    f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
+    direction = [[-1,0], [1,0],[0,-1],[0,1]]
+    prev = {(i, j): None for i in range(rows) for j in range(cols)}
+    i,j = start[0], start[1]
+    f_score[start] = 0
+    g_score[start] = 0
+    pq = []  # Initialize the priority queue (heap)
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), -1 * g_score[start], start))
 
+    while pq:
+        _, _, current_position = heapq.heappop(pq)
+        i, j = current_position  # Update i, j to be the current position
+
+        if current_position == end:
+            return reconstruct_path(grid, prev, end)  # Make sure to return the path
+
+        visited.add(current_position)
+        for d in direction:
+            r, c = d[0], d[1]
+            new_i, new_j = i + r, j + c  # Correctly calculate new_i and new_j
+
+            if not (validRow(new_i) and validCol(new_j)) or (new_i, new_j) in visited or grid[new_i][new_j] == 0:
+                continue  # Check grid boundaries and visited or blocked cells
+
+            # Calculate the f_score for the neighbor
+            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
+            if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
+                prev[(new_i, new_j)] = current_position  # Update the prev pointer
+                f_score[(new_i, new_j)] = f_distance
+                g_score[(new_i, new_j)] = g_score[current_position] + 1
+                heapq.heappush(pq, (f_distance, -1 * g_score[(new_i, new_j)], (new_i, new_j)))
     return []  # If the goal is not reached, return an empty path
 
 def reconstruct_path(grid, prev, current):
@@ -165,7 +206,8 @@ cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
-rows = 6
-cols = 6
+rows = 5
+cols = 5
 numMazes = 1
 mazes2 = genMaze(numMazes, rows, cols)
+
