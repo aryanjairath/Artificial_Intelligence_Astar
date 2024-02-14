@@ -80,10 +80,7 @@ def genMaze(numberOfMazes, rows, cols):
 
 def A_star(grid, start, end, rows, cols):
     expanded = 0
-    expanded = 0
     visited = set()
-    f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
-    g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
@@ -91,10 +88,7 @@ def A_star(grid, start, end, rows, cols):
     i,j = start[0], start[1]
     f_score[start] = 0
     g_score[start] = 0
-    f_score[start] = 0
-    g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
 
     while pq:
@@ -116,11 +110,7 @@ def A_star(grid, start, end, rows, cols):
             # Calculate the f_score for the neighbor
             f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
             if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
-            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
-            if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
-                f_score[(new_i, new_j)] = f_distance
-                g_score[(new_i, new_j)] = g_score[current_position] + 1
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
                 heapq.heappush(pq, (f_distance, (new_i, new_j)))
@@ -149,10 +139,7 @@ def repeated_A_star (grid, start, end, rows, cols):
 
 def Backward_A_star(grid, start, end, rows, cols):
     expanded = 0
-    expanded = 0
     visited = set()
-    f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
-    g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
@@ -160,21 +147,15 @@ def Backward_A_star(grid, start, end, rows, cols):
     i,j = end[0], end[1]
     f_score[end] = 0
     g_score[end] = 0
-    f_score[end] = 0
-    g_score[end] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), end))
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), end))
 
     while pq:
         _, current_position = heapq.heappop(pq)
         expanded+=1
-        _, current_position = heapq.heappop(pq)
-        expanded+=1
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == start:
-            print(expanded)
             print(expanded)
             return reconstruct_path(grid, prev, start)  # Make sure to return the path
 
@@ -198,10 +179,6 @@ def Backward_A_star(grid, start, end, rows, cols):
 #Here we prefer larger g_values if the f values are the same
 def A_star_tie(grid, start, end, rows, cols):
     #visited set of indexes visited
-    file_path = 'file.txt'
-# Open the file for writing ('w' mode) and write lines
-    with open(file_path, 'w') as file:
-        file.write(str(pq))
     expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
