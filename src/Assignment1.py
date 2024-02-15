@@ -72,7 +72,9 @@ def genMaze(numberOfMazes, rows, cols):
         cmap = colors.ListedColormap(['Red','Green'])
         showMaze(cmap,maze)
         allMazes.append(maze)
-        print(repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols))
+        repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
+        repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
+        repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         # Adpative_A_star(maze3, starting_coord, dest_coord, rows,cols)
         np.savetxt('file.txt', maze, delimiter=',')
 
@@ -121,8 +123,11 @@ def A_star(grid, start, end, rows, cols, backwards):
 def repeated_A_star (grid, start, end, rows, cols):
     current_start = start
     imaginary_mat = np.ones((rows,cols))
+    expanded = 0
+    p = []
     while current_start != end:
-        path, expanded = A_star(imaginary_mat, current_start, end, rows, cols, False)
+        path, expandedOnce = A_star(imaginary_mat, current_start, end, rows, cols, False)
+        expanded += expandedOnce
         if not path:
             break
         for step in path:
@@ -131,19 +136,24 @@ def repeated_A_star (grid, start, end, rows, cols):
                 break
             else:
                 current_start = step
+                p.append(step)
         if current_start == end:
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
-            for coord in path:
+            for coord in p:
                 grid[coord[0],[coord[1]]] = 2
             showMaze(cmap, grid)
-            return path
+            print(expanded)
+            return p
     return []
 
 def repeated_Backward_A_Star(grid, start, end, rows, cols):
     current_start = start
     imaginary_mat = np.ones((rows,cols))
+    expanded = 0
+    p = []
     while current_start != end:
-        path, expanded = A_star(imaginary_mat, end, start, rows, cols, True)
+        path, expandedOnce = A_star(imaginary_mat, end, current_start, rows, cols, True)
+        expanded += expandedOnce
         if not path:
             break
         for step in path:
@@ -152,12 +162,14 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
                 break
             else:
                 current_start = step
+                p.append(step)
         if current_start == end:
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
-            for coord in path:
+            for coord in p:
                 grid[coord[0],[coord[1]]] = 2
             showMaze(cmap, grid)
-            return path
+            print(expanded)
+            return p
     return []
 
 #Here we prefer larger g_values if the f values are the same
@@ -173,7 +185,7 @@ def A_star_tie(grid, start, end, rows, cols):
     f_score[start] = 0
     g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), -1 * g_score[start], start))
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), -1 * g_score[start], start)) #This is a mean heap so multiply by negative one to get largest value
 
     while pq:
         # print(pq)
@@ -204,9 +216,11 @@ def A_star_tie(grid, start, end, rows, cols):
 def repeated_A_Star_tie(grid, start, end, rows, cols):
     current_start = start
     imaginary_mat = np.ones((rows,cols))
+    expanded = 0
+    p = []
     while current_start != end:
-        path, expanded = A_star_tie(imaginary_mat, start, end, rows, cols)
-        print(path)
+        path, expandedOnce = A_star_tie(imaginary_mat, current_start, end, rows, cols)
+        expanded += expandedOnce
         if not path:
             break
         for step in path:
@@ -215,12 +229,14 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
                 break
             else:
                 current_start = step
+                p.append(step)
         if current_start == end:
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
-            for coord in path:
+            for coord in p:
                 grid[coord[0],[coord[1]]] = 2
             showMaze(cmap, grid)
-            return path
+            print(expanded)
+            return p
     return []
 
 def Adpative_A_star(grid, start, end, rows, cols):
@@ -293,7 +309,7 @@ cols = 101
 numMazes = 50
 # mazes = genMaze(numMazes, rows, cols, allMazes)
 
-rows = 10
-cols = 10
+rows = 101
+cols = 101
 numMazes = 1
 mazes2 = genMaze(numMazes, rows, cols)
