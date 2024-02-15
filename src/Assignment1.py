@@ -8,7 +8,6 @@ import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
-
 def validRow(row):
     return 0 <= row < rows
 
@@ -76,7 +75,7 @@ def genMaze(numberOfMazes, rows, cols):
         repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         # Adpative_A_star(maze3, starting_coord, dest_coord, rows,cols)
-        np.savetxt('file.txt', maze, delimiter=',')
+        # np.savetxt('file.txt', maze, delimiter=',')
 
     return allMazes, allManhattan
 
@@ -255,10 +254,10 @@ def Adpative_A_star(grid, start, end, rows, cols):
     heapq.heappush(pq, ((0 + h_score[start]), start))
 
     while pq:
-        file_path = 'file.txt'
+        # file_path = 'file.txt'
 # Open the file for writing ('w' mode) and write lines
-        with open(file_path, 'w') as file:
-            file.write(str(pq))
+        # with open(file_path, 'w') as file:
+            # file.write(str(pq))
 
         _, current_position = heapq.heappop(pq)
         expanded+=1
