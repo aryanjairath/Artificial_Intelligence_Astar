@@ -98,12 +98,14 @@ def reconstruct_path_backwards(grid, prev, current):
 def update_h(state, search, pathcost, end, g_score, counter, h_score):
     #this updates the h_score based on the previous iteration of a_star
     if search[state] != counter and search[state] != 0:
-        if g_score[state] + h_score[state] < pathcost(search[state]):
+        if g_score[state] + h_score[state] < pathcost[search[state]]:
             h_score[state] = pathcost[search[state]] - g_score[state]
         h_score[state] = max(h_score[state], manhattanDistance(state, end))
+        g_score[state] = float('inf')
     
     # this is for the first time A_star is called
     elif search[state] == 0:
+        g_score[state] = float('inf')
         h_score[state] = manhattanDistance(state, end)
     search[state] = counter
 
@@ -136,13 +138,16 @@ def A_star(grid, start, end, rows, cols, backwards, g_score, search, pathcost, c
             if not (validRow(new_i) and validCol(new_j)) or (new_i, new_j) in visited or grid[new_i][new_j] == 0:
                 continue  # Check grid boundaries and visited or blocked cells
             update_h((new_i, new_j), search, pathcost, end, g_score, counter, h_score)
+
             # Calculate the f_score for the neighbor
             f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
             if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
+                print('im here', counter)
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
                 heapq.heappush(pq, (f_distance, (new_i, new_j)))
+    print('sorry no')
     return [], 0
 
 def adaptive_A_star (grid, start, end, rows, cols):
@@ -151,35 +156,38 @@ def adaptive_A_star (grid, start, end, rows, cols):
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     h_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     pathcost = [0 for i in range(rows) for j in range(cols)]
-    expanded = 0
     counter = 1
     search = {(i, j): 0 for i in range(rows) for j in range(cols)}
 
     p = []
     while current_start != end:
-        update_h(current_start, search, pathcost, end, g_score, h_score)
-        update_h(end, search, pathcost, end, g_score, h_score)
-
-        g_score[current_start] = 0
+        update_h(current_start, search, pathcost, end, g_score, counter, h_score)
+        update_h(end, search, pathcost, end, g_score, counter, h_score)
 
         path, total_traveled = A_star(imaginary_mat, current_start, end, rows, cols, False, g_score, search, pathcost, counter, h_score)
-
+        print(path, counter)
+        print('GSCORE', g_score)
         if not path:
             break
         for step in path:
             if grid[step] == 0:
                 imaginary_mat[step] = 0
+                counter += 1
+                print('im breaking')
                 break
             else:
                 current_start = step
                 p.append(step)
                 pathcost[counter] = total_traveled
-        counter += 1
         if current_start == end:
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
             showMaze(cmap, grid)
-            print(expanded)
             return p
     return []
+
+rows = 101
+cols = 101
+numMazes = 1
+mazes2 = genMaze(numMazes, rows, cols)
