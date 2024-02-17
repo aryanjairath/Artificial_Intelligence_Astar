@@ -110,7 +110,7 @@ def update_h(state, search, pathcost, end, g_score, counter, h_score):
     search[state] = counter
 
 
-def A_star_2(grid, start, end, rows, cols, backwards, g_score, search, pathcost, counter, h_score):
+def A_star(grid, start, end, rows, cols, backwards, g_score, search, pathcost, counter, h_score):
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
@@ -119,18 +119,17 @@ def A_star_2(grid, start, end, rows, cols, backwards, g_score, search, pathcost,
     f_score[start] = 0
     g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    expanded = 0
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
     #
     while pq:
         _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
-        expanded+=1
+
         if current_position == end:
             if not backwards:
-                return reconstruct_path(grid, prev, end), g_score[current_position], expanded# Make sure to return the path
+                return reconstruct_path(grid, prev, end), g_score[current_position] # Make sure to return the path
             else:
-                return reconstruct_path_backwards(grid, prev, end), g_score[current_position], expanded
+                return reconstruct_path_backwards(grid, prev, end), g_score[current_position]
         visited.add(current_position)
         for d in direction:
             r, c = d[0], d[1]
@@ -143,11 +142,13 @@ def A_star_2(grid, start, end, rows, cols, backwards, g_score, search, pathcost,
             # Calculate the f_score for the neighbor
             f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
             if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
+                print('im here', counter)
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
                 heapq.heappush(pq, (f_distance, (new_i, new_j)))
-    return [], 0, 0
+    print('sorry no')
+    return [], 0
 
 def adaptive_A_star (grid, start, end, rows, cols):
     current_start = start
@@ -157,20 +158,22 @@ def adaptive_A_star (grid, start, end, rows, cols):
     pathcost = [0 for i in range(rows) for j in range(cols)]
     counter = 1
     search = {(i, j): 0 for i in range(rows) for j in range(cols)}
-    expanded = 0
+
     p = []
     while current_start != end:
         update_h(current_start, search, pathcost, end, g_score, counter, h_score)
         update_h(end, search, pathcost, end, g_score, counter, h_score)
 
-        path, total_traveled, expandedOnce = A_star_2(imaginary_mat, current_start, end, rows, cols, False, g_score, search, pathcost, counter, h_score)
-        expanded += expandedOnce
+        path, total_traveled = A_star(imaginary_mat, current_start, end, rows, cols, False, g_score, search, pathcost, counter, h_score)
+        print(path, counter)
+        print('GSCORE', g_score)
         if not path:
             break
         for step in path:
             if grid[step] == 0:
                 imaginary_mat[step] = 0
                 counter += 1
+                print('im breaking')
                 break
             else:
                 current_start = step
@@ -181,8 +184,8 @@ def adaptive_A_star (grid, start, end, rows, cols):
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
             showMaze(cmap, grid)
-            return p, expanded
-    return [], 0
+            return p
+    return []
 
 rows = 101
 cols = 101
