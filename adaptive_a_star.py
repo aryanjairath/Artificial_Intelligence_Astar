@@ -99,7 +99,7 @@ def update_h(state, search, pathcost, end, g_score, counter, h_score):
     #this updates the h_score based on the previous iteration of a_star
     if search[state] != counter and search[state] != 0:
         if g_score[state] + h_score[state] < pathcost(search[state]):
-            h_score[state] = pathcost[search[state]]
+            h_score[state] = pathcost[search[state]] - g_score[state]
         h_score[state] = max(h_score[state], manhattanDistance(state, end))
     
     # this is for the first time A_star is called
