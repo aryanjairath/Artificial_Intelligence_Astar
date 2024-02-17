@@ -118,7 +118,7 @@ def A_star(grid, start, end, rows, cols, backwards, g_score, search, pathcost, c
     g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
     heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
-
+    #
     while pq:
         _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
