@@ -1,5 +1,4 @@
 import random
-import queue
 import PriorityQueue
 import numpy as np
 import matplotlib 
@@ -8,7 +7,8 @@ import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
-
+repeat = 0
+adapt = 0
 def validRow(row):
     return 0 <= row < rows
 
@@ -51,7 +51,6 @@ def showMaze(cmap, maze):
 
 def genMaze(numberOfMazes, rows, cols):
     allMazes = []
-    allManhattan = []
     for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
         starting_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
@@ -89,27 +88,27 @@ def genMaze(numberOfMazes, rows, cols):
         cmap = colors.ListedColormap(['Red','Green'])
         # showMaze(cmap,maze)
         allMazes.append(maze)
-        print(Adpative_A_star(maze, starting_coord, dest_coord, rows,cols))
-        print(repeated_A_star(maze, starting_coord, dest_coord, rows,cols))
-        print(repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols))
-        # Adpative_A_star(maze3, starting_coord, dest_coord, rows,cols)
+        # repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
+        repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
+        Adpative_A_star(maze, starting_coord, dest_coord, rows,cols)
+        print(repeat, adapt)
         np.savetxt('file.txt', maze, delimiter=',')
 
-    return allMazes, allManhattan
+    return allMazes
 
 def compute_path(grid, start, end, rows, cols, backwards):
+    global repeat
     expanded = 0
-    c = rows * cols
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
     direction = [[-1,0], [1,0],[0,-1],[0,1]]
     prev = {(i, j): None for i in range(rows) for j in range(cols)}
     i,j = start[0], start[1]
-    f_score[start] = manhattanDistance(start, end)
+    f_score[start] = 0
     g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((-1*c*f_score[start] - g_score[start]), start))
+    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), start))
 
     while pq:
         _, current_position = heapq.heappop(pq)
@@ -117,6 +116,7 @@ def compute_path(grid, start, end, rows, cols, backwards):
         i, j = current_position  # Update i, j to be the current position
 
         if current_position == end:
+            repeat += expanded
             if not backwards:
                 return reconstruct_path(prev, end), expanded  # Make sure to return the path
             else:
@@ -130,15 +130,17 @@ def compute_path(grid, start, end, rows, cols, backwards):
                 continue  # Check grid boundaries and visited or blocked cells
 
             # Calculate the f_score for the neighbor
-            tentative_g = g_score[current_position] + 1
-            if tentative_g < g_score.get((new_i, new_j), float('inf')):
-                prev[(new_i, new_j)] = current_position
-                g_score[(new_i, new_j)] = tentative_g
-                f_score[(new_i, new_j)] = tentative_g + manhattanDistance((new_i, new_j), end) # Use updated h for computing f
-                heapq.heappush(pq, (-1*c*f_score[(new_i, new_j)] - g_score[(new_i, new_j)], (new_i, new_j)))
+            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
+            if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
+                prev[(new_i, new_j)] = current_position  # Update the prev pointer
+                f_score[(new_i, new_j)] = f_distance
+                g_score[(new_i, new_j)] = g_score[current_position] + 1
+                heapq.heappush(pq, (f_distance, (new_i, new_j)))
     return [], 0
 
+
 def compute_path_adaptive(grid, start, end, rows, cols, h):
+    global adapt
     expanded = 0
     visited = set()
     g_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
@@ -150,6 +152,7 @@ def compute_path_adaptive(grid, start, end, rows, cols, h):
         _, current_position = heapq.heappop(pq)
         expanded += 1
         if current_position == end:
+            adapt+=expanded
             for node in visited:
                 h[node[0], node[1]] = g_score[end] - g_score[node]  # Update h using the provided formula
             return reconstruct_path(prev, end), expanded, h
@@ -191,7 +194,7 @@ def repeated_A_star (grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid)
+            # showMaze(cmap, grid)
             return p, expanded
         
     return [], 0
@@ -218,7 +221,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid)
+            # showMaze(cmap, grid)
             return p, expanded
         
     return [], 0
@@ -236,15 +239,13 @@ def compute_path_ties(grid, start, end, rows, cols):
     f_score[start] = 0
     g_score[start] = 0
     pq = []  # Initialize the priority queue (heap)
-    heapq.heappush(pq, ((0 + manhattanDistance(start, end)), -1 * g_score[start], start))
-
+    cc = rows * cols
+    heapq.heappush(pq, ((cc * manhattanDistance(start, end) - g_score[start]), start))
     while pq:
-        # print(pq)
-        _, _, current_position = heapq.heappop(pq)
+        _, current_position = heapq.heappop(pq)
         i, j = current_position  # Update i, j to be the current position
         expanded += 1
         if current_position == end:
-            # print(expanded)
             return reconstruct_path(prev, end), expanded  # Make sure to return the path
 
         visited.add(current_position)
@@ -256,12 +257,12 @@ def compute_path_ties(grid, start, end, rows, cols):
                 continue  # Check grid boundaries and visited or blocked cells
 
             # Calculate the f_score for the neighbor
-            f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
             if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
-                f_score[(new_i, new_j)] = f_distance
+                f_score[(new_i, new_j)] = g_score[current_position] + 1 + manhattanDistance((new_i, new_j), end)
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
-                heapq.heappush(pq, (f_distance, -1 * g_score[(new_i, new_j)], (new_i, new_j)))
+                heapq.heappush(pq, (cc * f_score[(new_i, new_j)] - g_score[(new_i, new_j)], (new_i, new_j)))
+
     return [], 0  # If the goal is not reached, return an empty path
 
 def repeated_A_Star_tie(grid, start, end, rows, cols):
@@ -317,7 +318,7 @@ def Adpative_A_star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid)
+            # showMaze(cmap, grid)
             return p, expanded
         
     return [], 0    
@@ -329,5 +330,5 @@ numMazes = 50
 
 rows = 101
 cols = 101
-numMazes = 1
+numMazes = 50
 mazes2 = genMaze(numMazes, rows, cols)
