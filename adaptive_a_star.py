@@ -99,7 +99,9 @@ def update_h(state, search, pathcost, end, g_score, counter, h_score):
     #this updates the h_score based on the previous iteration of a_star
     if search[state] != counter and search[state] != 0:
         if g_score[state] + h_score[state] < pathcost[search[state]]:
+            print('im fixing h: ', h_score[state])
             h_score[state] = pathcost[search[state]] - g_score[state]
+            print('NEW h: ', h_score[state])
         h_score[state] = max(h_score[state], manhattanDistance(state, end))
         g_score[state] = float('inf')
     
@@ -142,12 +144,10 @@ def A_star(grid, start, end, rows, cols, backwards, g_score, search, pathcost, c
             # Calculate the f_score for the neighbor
             f_distance = g_score[(i, j)] + 1 + manhattanDistance((new_i, new_j), end)
             if g_score[current_position] + 1 < g_score[(new_i, new_j)]:
-                print('im here', counter)
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
                 heapq.heappush(pq, (f_distance, (new_i, new_j)))
-    print('sorry no')
     return [], 0
 
 def adaptive_A_star (grid, start, end, rows, cols):
@@ -165,15 +165,12 @@ def adaptive_A_star (grid, start, end, rows, cols):
         update_h(end, search, pathcost, end, g_score, counter, h_score)
 
         path, total_traveled = A_star(imaginary_mat, current_start, end, rows, cols, False, g_score, search, pathcost, counter, h_score)
-        print(path, counter)
-        print('GSCORE', g_score)
         if not path:
             break
         for step in path:
             if grid[step] == 0:
                 imaginary_mat[step] = 0
                 counter += 1
-                print('im breaking')
                 break
             else:
                 current_start = step
