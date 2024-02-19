@@ -8,24 +8,31 @@ import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
+cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
+
+# Determines if a row is valid
 def validRow(row):
     return 0 <= row < rows
 
+# Determines if a column is valid
 def validCol(col):
     return 0 <= col < cols
 
+# Returns Manhattan Distance -- shortest distance between two points (returns non integer value)
 def manhattanDistance(curr, goal):
-    return abs(goal[1]-curr[1])+abs(goal[0]-curr[0])
+    return abs(goal[1] - curr[1]) + abs(goal[0] - curr[0])
 
+# Returns set of neighbors that have not been visited at point (row, col)
 def get_unvisited_neighbors(row, col, visited):
     direction = [[1,0],[0,1],[-1,0],[0,-1]]
     neighbors = []
     for dr, dc in direction:
-        r, c = row+dr,col+dc
+        r, c = row + dr, col + dc
         if validRow(r) and validCol(c) and (r,c) not in visited:
             neighbors.append((r,c))
     return neighbors
 
+# prints maze
 def showMaze(cmap, maze):
     plt.figure(figsize=(6.7,6.7))
     plt.imshow(maze, cmap=cmap)
@@ -238,7 +245,7 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
             return p
     return []
 
-def Adpative_A_star(grid, start, end, rows, cols):
+def Adaptive_A_star(grid, start, end, rows, cols):
     expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
