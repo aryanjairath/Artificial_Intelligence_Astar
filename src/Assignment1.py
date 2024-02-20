@@ -1,8 +1,16 @@
 import random
 import numpy as np
-import heapq
 from matplotlib import colors
 from matplotlib import pyplot as plt
+
+# Indicates whether we want to use our own heap class or the python provided one
+use_custom_heap = True
+
+if not use_custom_heap:
+    import heapq
+else:
+    import binary_heap
+    heapq = binary_heap.binary_heap()
 
 # Below variables keeps track of how many expanded cells are visited
 repeat = 0
