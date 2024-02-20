@@ -9,7 +9,8 @@ repeat = 0
 backward = 0
 adapt = 0
 ties = 0
-backward = 0
+
+displayMazes = False
 
 cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
 
@@ -36,7 +37,6 @@ def get_unvisited_neighbors(row, col, visited):
 
 def reconstruct_path(prev, current):
     path = []
-    cmap = colors.ListedColormap(['Red','Green','Blue'])
     while current in prev:
         path.append(current)
         current = prev[current]
@@ -45,7 +45,6 @@ def reconstruct_path(prev, current):
 
 def reconstruct_path_backwards(prev, current):
     path = []
-    cmap = colors.ListedColormap(['Red','Green','Blue'])
     while current in prev:
         path.append(current)
         current = prev[current]
@@ -95,7 +94,7 @@ def genMaze(numberOfMazes, rows, cols):
                 stack.pop()
         maze[dest_coord] = 1
         cmap = colors.ListedColormap(['Red','Green'])
-        showMaze(cmap, maze, "Initial Maze")
+        displayMazes and showMaze(cmap, maze, "Initial Maze")
         allMazes.append(maze)
         repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
         repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
@@ -207,7 +206,7 @@ def repeated_A_star (grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid, "Forwards A*")
+            displayMazes and showMaze(cmap, grid, "Forwards A*")
             return p, expanded
         
     return [], 0
@@ -236,7 +235,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid, "Backwards A*")
+            displayMazes and showMaze(cmap, grid, "Backwards A*")
             return p, expanded
         
     return [], 0
@@ -335,13 +334,13 @@ def Adaptive_A_star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            showMaze(cmap, grid, "Adaptive A*")
+            displayMazes and showMaze(cmap, grid, "Adaptive A*")
             return p, expanded
         
     return [], 0    
-      
+
 rows = 101
 cols = 101
-# numMazes = 50
-numMazes = 1
+numMazes = 50
+# numMazes = 1
 mazes = genMaze(numMazes, rows, cols)
