@@ -10,8 +10,10 @@ backward = 0
 adapt = 0
 ties = 0
 
+# Set to True if figures are wanted
 displayMazes = False
 
+# North, East, South, West
 cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
 
 # Determines if a row is valid
@@ -35,6 +37,7 @@ def get_unvisited_neighbors(row, col, visited):
             neighbors.append((r,c))
     return neighbors
 
+# Returns list of nodes representing shortest path from the current node to the starting node
 def reconstruct_path(prev, current):
     path = []
     while current in prev:
@@ -43,6 +46,7 @@ def reconstruct_path(prev, current):
     path = path[::-1]
     return path
 
+# Same as reconstruct_path but omits reversal of path
 def reconstruct_path_backwards(prev, current):
     path = []
     while current in prev:
@@ -50,13 +54,14 @@ def reconstruct_path_backwards(prev, current):
         current = prev[current]
     return path
 
-# prints maze
+# Prints maze
 def showMaze(cmap, maze, title='No Title Assigned'):
     plt.figure(figsize=(6.7,6.7))
     plt.imshow(maze, cmap=cmap)
     plt.title(title)
     plt.show()
 
+# Generates mazes
 def genMaze(numberOfMazes, rows, cols):
     global repeat
     global backward
@@ -82,7 +87,7 @@ def genMaze(numberOfMazes, rows, cols):
         while len(visited) < rows*cols:
             if stack:
                 curr_row, curr_col = stack[-1]
-            else: #Dead end check
+            else:
                 unvisited_cells = [(r,c) for r in range(rows) for c in range(cols) if (r,c) not in visited]
                 curr_row, curr_col = random.choice(unvisited_cells)
                 stack.append((curr_row,curr_col))
@@ -98,7 +103,7 @@ def genMaze(numberOfMazes, rows, cols):
                     stack.append((next_row,next_col))
                 else:
                     maze[next_row, next_col] = 0
-            else: #No neighbors!
+            else:
                 stack.pop()
         maze[dest_coord] = 1
         cmap = colors.ListedColormap(['Red','Green'])
@@ -109,7 +114,6 @@ def genMaze(numberOfMazes, rows, cols):
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
         print(repeat, backward, ties, adapt)
-        # np.savetxt('file.txt', maze, delimiter=',')
 
     return allMazes
 
