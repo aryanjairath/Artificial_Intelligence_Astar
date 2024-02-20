@@ -58,6 +58,14 @@ def showMaze(cmap, maze, title='No Title Assigned'):
     plt.show()
 
 def genMaze(numberOfMazes, rows, cols):
+    global repeat
+    global backward
+    global adapt
+    global ties
+    repeat = 0
+    backward = 0
+    adapt = 0
+    ties = 0
     allMazes = []
     for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
