@@ -1,14 +1,14 @@
 import random
-import PriorityQueue
 import numpy as np
-import matplotlib 
 import heapq
-import math
 from matplotlib import colors
 from matplotlib import pyplot as plt
 
+# Below variables keeps track of how many expanded cells are visited
 repeat = 0
+backward = 0
 adapt = 0
+
 cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
 
 # Determines if a row is valid
@@ -25,9 +25,8 @@ def manhattanDistance(curr, goal):
 
 # Returns set of neighbors that have not been visited at point (row, col)
 def get_unvisited_neighbors(row, col, visited):
-    direction = [[1,0],[0,1],[-1,0],[0,-1]]
     neighbors = []
-    for dr, dc in direction:
+    for dr, dc in cardinal_directions:
         r, c = row + dr, col + dc
         if validRow(r) and validCol(c) and (r,c) not in visited:
             neighbors.append((r,c))
@@ -100,7 +99,7 @@ def genMaze(numberOfMazes, rows, cols):
         repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
-        print(repeat, adapt)
+        print(repeat, backward, adapt)
         # np.savetxt('file.txt', maze, delimiter=',')
 
     return allMazes
