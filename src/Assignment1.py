@@ -51,9 +51,10 @@ def reconstruct_path_backwards(prev, current):
     return path
 
 # prints maze
-def showMaze(cmap, maze):
+def showMaze(cmap, maze, title='No Title Assigned'):
     plt.figure(figsize=(6.7,6.7))
     plt.imshow(maze, cmap=cmap)
+    plt.title(title)
     plt.show()
 
 def genMaze(numberOfMazes, rows, cols):
@@ -62,8 +63,8 @@ def genMaze(numberOfMazes, rows, cols):
         maze = np.zeros((rows,cols))
         starting_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
         dest_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
-        print(starting_coord)
-        print(dest_coord)
+        print("Start:", starting_coord)
+        print("Goal:", dest_coord)
         visited = set()
         stack = []
         stack.append(starting_coord)
@@ -93,13 +94,14 @@ def genMaze(numberOfMazes, rows, cols):
                 stack.pop()
         maze[dest_coord] = 1
         cmap = colors.ListedColormap(['Red','Green'])
-        # showMaze(cmap,maze)
+        showMaze(cmap, maze, "Initial Maze")
         allMazes.append(maze)
         # repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
         repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
-        Adpative_A_star(maze, starting_coord, dest_coord, rows,cols)
+        repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
+        Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
         print(repeat, adapt)
-        np.savetxt('file.txt', maze, delimiter=',')
+        # np.savetxt('file.txt', maze, delimiter=',')
 
     return allMazes
 
@@ -201,7 +203,7 @@ def repeated_A_star (grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            # showMaze(cmap, grid)
+            showMaze(cmap, grid, "Forwards A*")
             return p, expanded
         
     return [], 0
@@ -228,7 +230,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            # showMaze(cmap, grid)
+            showMaze(cmap, grid, "Backwards A*")
             return p, expanded
         
     return [], 0
@@ -325,17 +327,13 @@ def Adaptive_A_star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            # showMaze(cmap, grid)
+            showMaze(cmap, grid, "Adaptive A*")
             return p, expanded
         
     return [], 0    
       
 rows = 101
 cols = 101
-numMazes = 50
-# mazes = genMaze(numMazes, rows, cols, allMazes)
-
-rows = 101
-cols = 101
-numMazes = 50
-mazes2 = genMaze(numMazes, rows, cols)
+# numMazes = 50
+numMazes = 1
+mazes = genMaze(numMazes, rows, cols)
