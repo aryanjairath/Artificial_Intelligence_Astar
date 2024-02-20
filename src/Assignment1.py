@@ -5,10 +5,14 @@ from matplotlib import pyplot as plt
 
 # Indicates whether we want to use our own heap class or the python provided one
 use_custom_heap = True
+# Seed for testing custom binary heap implementation, set to None to use random seed
+seed = None
 
 if not use_custom_heap:
     import heapq
+    print("Using Python's heapq")
 else:
+    print("Using custom binary heap")
     import binary_heap
     heapq = binary_heap.binary_heap()
 
@@ -82,6 +86,11 @@ def genMaze(numberOfMazes, rows, cols):
     allMazes = []
     for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
+        
+        # Use seed for testing custom binary heap implementation
+        if seed:
+            random.seed(seed)
+
         starting_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
         dest_coord = (random.randint(0,rows-1), random.randint(0,cols-1))
         print("Start:", starting_coord)
@@ -361,6 +370,6 @@ def Adaptive_A_star(grid, start, end, rows, cols):
 
 rows = 101
 cols = 101
-numMazes = 50
-# numMazes = 1
+# numMazes = 50
+numMazes = 1
 mazes = genMaze(numMazes, rows, cols)
