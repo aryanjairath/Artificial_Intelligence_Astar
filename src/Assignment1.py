@@ -8,13 +8,13 @@ use_custom_heap = True
 # Seed for testing custom binary heap implementation, set to None to use random seed
 seed = None
 
-if not use_custom_heap:
-    import heapq
-    print("Using Python's heapq")
-else:
+if use_custom_heap:
     print("Using custom binary heap")
     import binary_heap
     heapq = binary_heap.binary_heap()
+else:
+    print("Using Python's heapq")
+    import heapq
 
 # Below variables keeps track of how many expanded cells are visited
 repeat = 0
@@ -126,14 +126,19 @@ def genMaze(numberOfMazes, rows, cols):
         cmap = colors.ListedColormap(['Red','Green'])
         displayMazes and showMaze(cmap, maze, "Initial Maze")
         allMazes.append(maze)
+
+        # Run all algorithms
         repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
         repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
+
+        # Print statistics
         print(repeat, backward, ties, adapt)
 
     return allMazes
 
+# Take the grid, source, dest, and dimensions and perform normal A* search
 def compute_path(grid, start, end, rows, cols, backwards):
     expanded = 0
     visited = set()
@@ -175,7 +180,7 @@ def compute_path(grid, start, end, rows, cols, backwards):
                 heapq.heappush(pq, (cc * f_score[(new_i, new_j)] - g_score[(new_i, new_j)], (new_i, new_j)))
     return [], 0
 
-
+# Take the grid, source, dest, and dimensions and perform adaptive A* search
 def compute_path_adaptive(grid, start, end, rows, cols, h):
     global adapt
     expanded = 0
@@ -211,7 +216,7 @@ def compute_path_adaptive(grid, start, end, rows, cols, h):
 
     return [], 0, []
 
-#Take the grid, source, dest, and dimensions and perform normal A* search
+# Take the grid, source, dest, and dimensions and perform normal A* search
 def repeated_A_star (grid, start, end, rows, cols):
     global repeat
     current_start = start
@@ -240,7 +245,7 @@ def repeated_A_star (grid, start, end, rows, cols):
         
     return [], 0
 
-#Take the grid, source, dest, and dimensions and perform backwards A* search
+# Take the grid, source, dest, and dimensions and perform backwards A* search
 def repeated_Backward_A_Star(grid, start, end, rows, cols):
     global backward
     current_start = start
@@ -269,7 +274,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
         
     return [], 0
 
-#Here we prefer larger g_values if the f values are the same
+# Here we prefer larger g_values if the f values are the same
 def compute_path_ties(grid, start, end, rows, cols):
     #visited set of indexes visited
     expanded = 0
@@ -370,6 +375,6 @@ def Adaptive_A_star(grid, start, end, rows, cols):
 
 rows = 101
 cols = 101
-# numMazes = 50
-numMazes = 1
+numMazes = 50
+# numMazes = 1
 mazes = genMaze(numMazes, rows, cols)
