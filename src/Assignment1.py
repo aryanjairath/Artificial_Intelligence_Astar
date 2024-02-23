@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 use_custom_heap = True
 # Seed for testing custom binary heap implementation, set to None to use random seed
 seed = None
-
 if not use_custom_heap:
     import heapq
     print("Using Python's heapq")
@@ -24,6 +23,9 @@ ties = 0
 
 # Set to True if figures are wanted
 displayMazes = False
+
+#Set to True if break ties by larger g values
+larger_g = True
 
 # North, East, South, West
 cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
@@ -75,7 +77,6 @@ def showMaze(cmap, maze, title='No Title Assigned'):
 
 # Generates mazes
 def genMaze(numberOfMazes, rows, cols):
-    global repeat
     global backward
     global adapt
     global ties
@@ -127,14 +128,13 @@ def genMaze(numberOfMazes, rows, cols):
         displayMazes and showMaze(cmap, maze, "Initial Maze")
         allMazes.append(maze)
         repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
-        repeated_A_star(maze, starting_coord, dest_coord, rows,cols)
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
-        print(repeat, backward, ties, adapt)
+        print(ties, backward, adapt)
 
     return allMazes
 
-def compute_path(grid, start, end, rows, cols, backwards):
+def compute_path(grid, start, end, rows, cols, backwards, larger_g):
     expanded = 0
     visited = set()
     f_score = {(i, j): float('inf') for i in range(rows) for j in range(cols)}
@@ -172,7 +172,11 @@ def compute_path(grid, start, end, rows, cols, backwards):
                 prev[(new_i, new_j)] = current_position  # Update the prev pointer
                 f_score[(new_i, new_j)] = f_distance
                 g_score[(new_i, new_j)] = g_score[current_position] + 1
-                heapq.heappush(pq, (cc * f_score[(new_i, new_j)] - g_score[(new_i, new_j)], (new_i, new_j)))
+                if larger_g:
+                    heapq.heappush(pq, (cc * f_score[(new_i, new_j)] - g_score[(new_i, new_j)], (new_i, new_j)))
+                else:
+                    heapq.heappush(pq, (cc * f_score[(new_i, new_j)] + g_score[(new_i, new_j)], (new_i, new_j)))
+
     return [], 0
 
 
@@ -212,33 +216,33 @@ def compute_path_adaptive(grid, start, end, rows, cols, h):
     return [], 0, []
 
 #Take the grid, source, dest, and dimensions and perform normal A* search
-def repeated_A_star (grid, start, end, rows, cols):
-    global repeat
-    current_start = start
-    imaginary_mat = np.ones((rows,cols))
-    expanded = 0
-    p = []
-    while current_start != end:
-        path, expandedOnce = compute_path(imaginary_mat, current_start, end, rows, cols, False)
-        expanded += expandedOnce
-        if not path:
-            break
-        for step in path:
-            if grid[step] == 0:
-                imaginary_mat[step] = 0
-                break
-            else:
-                current_start = step
-                p.append(step)
-        if current_start == end:
-            repeat += expanded
-            cmap = colors.ListedColormap(['Red','Green', 'Blue'])
-            for coord in p:
-                grid[coord[0],[coord[1]]] = 2
-            displayMazes and showMaze(cmap, grid, "Forwards A*")
-            return p, expanded
+# def repeated_A_star (grid, start, end, rows, cols):
+#     global repeat
+#     current_start = start
+#     imaginary_mat = np.ones((rows,cols))
+#     expanded = 0
+#     p = []
+#     while current_start != end:
+#         path, expandedOnce = compute_path(imaginary_mat, current_start, end, rows, cols, False)
+#         expanded += expandedOnce
+#         if not path:
+#             break
+#         for step in path:
+#             if grid[step] == 0:
+#                 imaginary_mat[step] = 0
+#                 break
+#             else:
+#                 current_start = step
+#                 p.append(step)
+#         if current_start == end:
+#             repeat += expanded
+#             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
+#             for coord in p:
+#                 grid[coord[0],[coord[1]]] = 2
+#             displayMazes and showMaze(cmap, grid, "Forwards A*")
+#             return p, expanded
         
-    return [], 0
+#     return [], 0
 
 #Take the grid, source, dest, and dimensions and perform backwards A* search
 def repeated_Backward_A_Star(grid, start, end, rows, cols):
@@ -248,7 +252,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
     expanded = 0
     p = []
     while current_start != end:
-        path, expandedOnce = compute_path(imaginary_mat, end, current_start, rows, cols, True)
+        path, expandedOnce = compute_path(imaginary_mat, end, current_start, rows, cols, True, larger_g)
         expanded += expandedOnce
         if not path:
             break
@@ -316,7 +320,7 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
     p = []
 
     while current_start != end:
-        path, expandedOnce = compute_path_ties(imaginary_mat, current_start, end, rows, cols)
+        path, expandedOnce = compute_path(imaginary_mat, current_start, end, rows, cols, False, larger_g)
         expanded += expandedOnce
         if not path:
             break
@@ -370,6 +374,6 @@ def Adaptive_A_star(grid, start, end, rows, cols):
 
 rows = 101
 cols = 101
-# numMazes = 50
-numMazes = 1
+numMazes = 50
+# numMazes = 1
 mazes = genMaze(numMazes, rows, cols)
