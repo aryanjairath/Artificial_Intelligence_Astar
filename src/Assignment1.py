@@ -1,4 +1,5 @@
 import random
+import os
 import numpy as np
 from matplotlib import colors
 from matplotlib import pyplot as plt
@@ -136,7 +137,10 @@ def genMaze(numberOfMazes, rows, cols):
         cmap = colors.ListedColormap(['Red','Green'])
         displayMazes and showMaze(cmap, maze, "Initial Maze")
         if writeMazes:
-            with open('mazes/initial' + str(mazeNumber + 1) + '.txt', 'w') as f:
+            if not os.path.exists('mazes'):
+                os.makedirs('mazes')
+
+            with open('mazes/' + str(mazeNumber + 1) + '_initial.txt', 'w') as f:
                 for row in maze:
                     f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
 
@@ -289,7 +293,7 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
 
             displayMazes and showMaze(cmap, grid, "Backwards A*")
             if writeMazes:
-                with open('mazes/backward' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                with open('mazes/' + str(mazeNumber + 1) + '_backwards.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
 
@@ -363,7 +367,7 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
             
             displayMazes and showMaze(cmap, grid, "Tie Breaking A*")
             if writeMazes:
-                with open('mazes/tie' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                with open('mazes/' + str(mazeNumber + 1) + '_ties.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
             return p, expanded
@@ -399,7 +403,7 @@ def Adaptive_A_star(grid, start, end, rows, cols):
 
             displayMazes and showMaze(cmap, grid, "Adaptive A*")
             if writeMazes:
-                with open('mazes/adaptive' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                with open('mazes/' + str(mazeNumber + 1) + '_adaptive.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
 
