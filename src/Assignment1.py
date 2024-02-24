@@ -21,7 +21,9 @@ else:
 displayMazes = False
 
 # Indicates if we want to write mazes to a file
-writeMazes = True
+writeMazes = False
+writePaths = True
+assert not (writeMazes and writePaths), "Cannot write both mazes and paths"
 
 #Set to True if break ties by larger g values
 larger_g = True
@@ -136,7 +138,8 @@ def genMaze(numberOfMazes, rows, cols):
         maze[dest_coord] = 1
         cmap = colors.ListedColormap(['Red','Green'])
         displayMazes and showMaze(cmap, maze, "Initial Maze")
-        if writeMazes:
+
+        if writePaths or writeMazes:
             if not os.path.exists('mazes'):
                 os.makedirs('mazes')
 
@@ -296,6 +299,11 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
                 with open('mazes/' + str(mazeNumber + 1) + '_backwards.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+            if writePaths:
+                with open('mazes/' + str(mazeNumber + 1) + '_backwards.txt', 'w') as f:
+                    for coord in p:
+                        f.write('(' + str(coord[0]) + ', ' + str(coord[1]) + ')\n')
+                    
 
             return p, expanded
         
@@ -370,6 +378,12 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
                 with open('mazes/' + str(mazeNumber + 1) + '_ties.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+
+            if writePaths:
+                with open('mazes/' + str(mazeNumber + 1) + '_ties.txt', 'w') as f:
+                    for coord in p:
+                        f.write('(' + str(coord[0]) + ', ' + str(coord[1]) + ')\n')
+
             return p, expanded
         
     return [], 0
@@ -406,6 +420,11 @@ def Adaptive_A_star(grid, start, end, rows, cols):
                 with open('mazes/' + str(mazeNumber + 1) + '_adaptive.txt', 'w') as f:
                     for row in grid:
                         f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+
+            if writePaths:
+                with open('mazes/' + str(mazeNumber + 1) + '_adaptive.txt', 'w') as f:
+                    for coord in p:
+                        f.write('(' + str(coord[0]) + ', ' + str(coord[1]) + ')\n')
 
             return p, expanded
         
