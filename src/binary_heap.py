@@ -19,10 +19,12 @@ class binary_heap:
 
     @classmethod
     def _swap(self, heap, i, j):
+        '''Swaps elements at indices i and j in heap'''
         heap[i], heap[j] = heap[j], heap[i]
 
     @classmethod
     def _sift_up(self, heap, index):
+        '''Sifts up the element at index to its correct position in the heap'''
         parent_index = (index - 1) // 2
         while index > 0 and heap[index] < heap[parent_index]:
             self._swap(heap, index, parent_index)
@@ -31,6 +33,7 @@ class binary_heap:
 
     @classmethod
     def _sift_down(self, heap, index):
+        '''Sifts down the element at index to its correct position in the heap'''
         left_child_index = 2 * index + 1
         right_child_index = 2 * index + 2
 
