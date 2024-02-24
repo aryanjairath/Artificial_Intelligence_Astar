@@ -7,16 +7,23 @@ from matplotlib import pyplot as plt
 use_custom_heap = True
 # Seed for testing custom binary heap implementation, set to None to use random seed
 seed = None
-if not use_custom_heap:
-    import heapq
-    print("Using Python's heapq")
-else:
+
+if use_custom_heap:
     print("Using custom binary heap")
     import binary_heap
-    heapq = binary_heap.binary_heap()
+    heapq = binary_heap.binary_heap()  
 else:
     print("Using Python's heapq")
     import heapq
+
+# Set to True if figures are wanted
+displayMazes = False
+
+# Indicates if we want to write mazes to a file
+writeMazes = True
+
+#Set to True if break ties by larger g values
+larger_g = True
 
 # Below variables keeps track of how many expanded cells are visited
 repeat = 0
@@ -24,11 +31,8 @@ backward = 0
 adapt = 0
 ties = 0
 
-# Set to True if figures are wanted
-displayMazes = False
-
-#Set to True if break ties by larger g values
-larger_g = True
+# Keeps track of the maze number
+mazeNumber = 0
 
 # North, East, South, West
 cardinal_directions = [[1,0],[0,1],[-1,0],[0,-1]]
@@ -83,12 +87,14 @@ def genMaze(numberOfMazes, rows, cols):
     global backward
     global adapt
     global ties
+    global repeat
+    global mazeNumber
     repeat = 0
     backward = 0
     adapt = 0
     ties = 0
     allMazes = []
-    for _ in range(numberOfMazes):
+    for i in range(numberOfMazes):
         maze = np.zeros((rows,cols))
         
         # Use seed for testing custom binary heap implementation
@@ -129,6 +135,11 @@ def genMaze(numberOfMazes, rows, cols):
         maze[dest_coord] = 1
         cmap = colors.ListedColormap(['Red','Green'])
         displayMazes and showMaze(cmap, maze, "Initial Maze")
+        if writeMazes:
+            with open('mazes/initial' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                for row in maze:
+                    f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+
         allMazes.append(maze)
 
         # Run all algorithms
@@ -136,6 +147,8 @@ def genMaze(numberOfMazes, rows, cols):
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
         print(ties, backward, adapt)
+        
+        mazeNumber += 1
 
     return allMazes
 
@@ -273,7 +286,13 @@ def repeated_Backward_A_Star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
+
             displayMazes and showMaze(cmap, grid, "Backwards A*")
+            if writeMazes:
+                with open('mazes/backward' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                    for row in grid:
+                        f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+
             return p, expanded
         
     return [], 0
@@ -341,7 +360,12 @@ def repeated_A_Star_tie(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
-            # showMaze(cmap, grid)
+            
+            displayMazes and showMaze(cmap, grid, "Tie Breaking A*")
+            if writeMazes:
+                with open('mazes/tie' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                    for row in grid:
+                        f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
             return p, expanded
         
     return [], 0
@@ -372,7 +396,13 @@ def Adaptive_A_star(grid, start, end, rows, cols):
             cmap = colors.ListedColormap(['Red','Green', 'Blue'])
             for coord in p:
                 grid[coord[0],[coord[1]]] = 2
+
             displayMazes and showMaze(cmap, grid, "Adaptive A*")
+            if writeMazes:
+                with open('mazes/adaptive' + str(mazeNumber + 1) + '.txt', 'w') as f:
+                    for row in grid:
+                        f.write(' '.join([str(int(cell)) for cell in row]) + '\n')
+
             return p, expanded
         
     return [], 0    
