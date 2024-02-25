@@ -18,7 +18,7 @@ else:
     import heapq
 
 # Set to True if figures are wanted
-displayMazes = False
+displayMazes = True
 
 # Indicates if we want to write mazes to a file
 writeMazes = False
@@ -97,7 +97,7 @@ def genMaze(numberOfMazes, rows, cols):
     adapt = 0
     ties = 0
     allMazes = []
-    for i in range(numberOfMazes):
+    for _ in range(numberOfMazes):
         maze = np.zeros((rows,cols))
         
         # Use seed for testing custom binary heap implementation
@@ -432,8 +432,6 @@ def Adaptive_A_star(grid, start, end, rows, cols):
 
 rows = 101
 cols = 101
-numMazes = 50
-# numMazes = 1
 numMazes = 50
 # numMazes = 1
 mazes = genMaze(numMazes, rows, cols)
