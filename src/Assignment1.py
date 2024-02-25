@@ -79,7 +79,7 @@ def reconstruct_path_backwards(prev, current):
     return path
 
 # Prints maze
-def showMaze(cmap, maze, title='No Title Assigned'):
+def showMaze(cmap, maze, title='Generated Maze'):
     plt.figure(figsize=(6.7,6.7))
     plt.imshow(maze, cmap=cmap)
     plt.title(title)
@@ -153,7 +153,7 @@ def genMaze(numberOfMazes, rows, cols):
         repeated_A_Star_tie(maze, starting_coord, dest_coord, rows,cols)
         repeated_Backward_A_Star(maze, starting_coord, dest_coord, rows,cols)
         Adaptive_A_star(maze, starting_coord, dest_coord, rows,cols)
-        print(ties, backward, adapt)
+        print("# of Expanded Nodes for --> Repated Forward A*:", ties, "Backward A*:", backward, "Adaptive A*:", adapt)
         
         mazeNumber += 1
 
